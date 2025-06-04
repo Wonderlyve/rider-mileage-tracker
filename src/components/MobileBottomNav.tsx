@@ -35,7 +35,7 @@ export function MobileBottomNav() {
           <div className="bg-green-600 rounded-full p-2">
             <Plus className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xs font-medium">Saisie</span>
+          <span className="text-xs font-medium">{t('entry')}</span>
         </Link>
         
         <Link

@@ -2,7 +2,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { FileText, Mail, Lock, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -10,6 +12,7 @@ export function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,10 +30,10 @@ export function LoginPage() {
           navigate('/rider/home');
         }
       } else {
-        setError('Email ou mot de passe incorrect');
+        setError(t('incorrectCredentials') || 'Email ou mot de passe incorrect');
       }
     } catch (err) {
-      setError('Une erreur est survenue');
+      setError(t('errorOccurred') || 'Une erreur est survenue');
     } finally {
       setIsLoading(false);
     }
@@ -40,20 +43,28 @@ export function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-orange-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-blue-600 rounded-xl flex items-center justify-center">
-            <FileText className="h-8 w-8 text-white" />
+          <div className="mx-auto h-16 w-16 bg-white rounded-xl flex items-center justify-center shadow-lg">
+            <img 
+              src="/lovable-uploads/7c91dcb6-ae80-4998-9cbb-565facfffb57.png" 
+              alt="Logo Kilométrage" 
+              className="h-12 w-12"
+            />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Kilométrage</h2>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">{t('appName') || 'Kilométrage'}</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Connectez-vous à votre compte
+            {t('loginSubtitle') || 'Connectez-vous à votre compte'}
           </p>
+        </div>
+
+        <div className="flex justify-center">
+          <LanguageSelector />
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
+                {t('email') || 'Email'}
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -75,7 +86,7 @@ export function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Mot de passe
+                {t('password') || 'Mot de passe'}
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -108,12 +119,12 @@ export function LoginPage() {
             disabled={isLoading}
             className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
           >
-            {isLoading ? 'Connexion...' : 'Se connecter'}
+            {isLoading ? (t('connecting') || 'Connexion...') : (t('connect') || 'Se connecter')}
           </button>
 
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <p className="text-xs text-gray-600 text-center">
-              <strong>Comptes de démonstration :</strong><br/>
+              <strong>{t('demoAccounts') || 'Comptes de démonstration'} :</strong><br/>
               Admin: shoppirideradmin@shoppi.cd / Myadminriders<br/>
               Rider: jc.mulumba@shoppi.cd / rider123
             </p>

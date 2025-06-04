@@ -7,6 +7,8 @@ export interface User {
   photo?: string;
   matricule?: string;
   password?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface MileageEntry {
@@ -19,6 +21,8 @@ export interface MileageEntry {
   photo: string;
   timestamp: number;
   date: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface AuthContextType {
@@ -26,4 +30,47 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+}
+
+export interface Session {
+  id: string;
+  userId: string;
+  token: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  userId: string;
+  action: string;
+  tableName: string;
+  recordId: string;
+  oldValues?: Record<string, any>;
+  newValues?: Record<string, any>;
+  createdAt: string;
+}
+
+export interface ApiResponse<T> {
+  data?: T;
+  error?: string;
+  message?: string;
+  success: boolean;
+}
+
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface ReportFilters {
+  startDate?: string;
+  endDate?: string;
+  riderId?: string;
+  type?: 'ouverture' | 'fermeture' | 'carburant';
+  shift?: 1 | 2;
 }

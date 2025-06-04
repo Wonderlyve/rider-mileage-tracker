@@ -10,9 +10,11 @@ export function exportToCSV(entries: MileageEntry[], riders: User[], filename: s
       'Heure': new Date(entry.timestamp).toLocaleTimeString('fr-FR'),
       'Rider': rider?.name || 'Inconnu',
       'Matricule': rider?.matricule || 'N/A',
-      'Type': entry.type,
       'Shift': entry.shift,
-      'Kilométrage': entry.kilometrage
+      'Ouverture': entry.type === 'ouverture' ? entry.kilometrage : '',
+      'Fermeture': entry.type === 'fermeture' ? entry.kilometrage : '',
+      'Carburant': entry.type === 'carburant' ? entry.kilometrage : '',
+      'Montant': entry.type === 'carburant' && entry.amount ? `${entry.amount} CDF` : ''
     };
   });
 
