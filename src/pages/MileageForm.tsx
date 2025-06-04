@@ -2,12 +2,14 @@
 import { useState, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { storage } from '@/utils/storage';
 import { MileageEntry } from '@/types';
 import { Camera, Upload, Save, ArrowLeft } from 'lucide-react';
 
 export function MileageForm() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -18,6 +20,7 @@ export function MileageForm() {
     type: defaultType as 'ouverture' | 'fermeture' | 'carburant',
     shift: 1 as 1 | 2,
     kilometrage: '',
+    amount: '',
     photo: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +39,16 @@ export function MileageForm() {
     }
   };
 
+  const handleKilometrageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    setFormData(prev => ({ ...prev, kilometrage: value }));
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    setFormData(prev => ({ ...prev, amount: value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !formData.photo || !formData.kilometrage) return;
@@ -49,6 +62,7 @@ export function MileageForm() {
         type: formData.type,
         shift: formData.shift,
         kilometrage: parseInt(formData.kilometrage),
+        amount: formData.type === 'carburant' && formData.amount ? parseInt(formData.amount) : undefined,
         photo: formData.photo,
         timestamp: Date.now(),
         date: new Date().toISOString().split('T')[0]
@@ -74,14 +88,14 @@ export function MileageForm() {
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900">Nouvelle saisie</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('newEntry')}</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Type Selection */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <label className="block text-sm font-medium text-gray-700 mb-4">
-              Type de saisie
+              {t('entryType')}
             </label>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <button
@@ -94,8 +108,8 @@ export function MileageForm() {
                 }`}
               >
                 <div className="text-center">
-                  <p className="font-medium">Ouverture</p>
-                  <p className="text-sm text-gray-500">Début de shift</p>
+                  <p className="font-medium">{t('opening')}</p>
+                  <p className="text-sm text-gray-500">{t('shiftStart')}</p>
                 </div>
               </button>
 
@@ -109,8 +123,8 @@ export function MileageForm() {
                 }`}
               >
                 <div className="text-center">
-                  <p className="font-medium">Fermeture</p>
-                  <p className="text-sm text-gray-500">Fin de shift</p>
+                  <p className="font-medium">{t('closing')}</p>
+                  <p className="text-sm text-gray-500">{t('shiftEnd')}</p>
                 </div>
               </button>
 
@@ -124,8 +138,8 @@ export function MileageForm() {
                 }`}
               >
                 <div className="text-center">
-                  <p className="font-medium">Carburant</p>
-                  <p className="text-sm text-gray-500">Avant ravitaillement</p>
+                  <p className="font-medium">{t('fuel')}</p>
+                  <p className="text-sm text-gray-500">{t('beforeRefuel')}</p>
                 </div>
               </button>
             </div>
@@ -134,7 +148,7 @@ export function MileageForm() {
           {/* Shift Selection */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <label className="block text-sm font-medium text-gray-700 mb-4">
-              Numéro de shift
+              {t('shiftNumber')}
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -148,7 +162,7 @@ export function MileageForm() {
               >
                 <div className="text-center">
                   <p className="font-medium">Shift 1</p>
-                  <p className="text-sm text-gray-500">Matin</p>
+                  <p className="text-sm text-gray-500">{t('morning')}</p>
                 </div>
               </button>
 
@@ -163,7 +177,7 @@ export function MileageForm() {
               >
                 <div className="text-center">
                   <p className="font-medium">Shift 2</p>
-                  <p className="text-sm text-gray-500">Après-midi</p>
+                  <p className="text-sm text-gray-500">{t('afternoon')}</p>
                 </div>
               </button>
             </div>
@@ -172,23 +186,40 @@ export function MileageForm() {
           {/* Kilometrage */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <label htmlFor="kilometrage" className="block text-sm font-medium text-gray-700 mb-2">
-              Kilométrage actuel
+              {t('currentMileage')}
             </label>
             <input
-              type="number"
+              type="text"
               id="kilometrage"
               value={formData.kilometrage}
-              onChange={(e) => setFormData(prev => ({ ...prev, kilometrage: e.target.value }))}
+              onChange={handleKilometrageChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Ex: 45230"
               required
             />
           </div>
 
+          {/* Amount for Fuel */}
+          {formData.type === 'carburant' && (
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+                {t('amountCDF')}
+              </label>
+              <input
+                type="text"
+                id="amount"
+                value={formData.amount}
+                onChange={handleAmountChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Ex: 50000"
+              />
+            </div>
+          )}
+
           {/* Photo Upload */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
             <label className="block text-sm font-medium text-gray-700 mb-4">
-              Photo du compteur
+              {t('counterPhoto')}
             </label>
             
             {previewUrl ? (
@@ -204,7 +235,7 @@ export function MileageForm() {
                   className="w-full flex items-center justify-center space-x-2 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   <Camera className="h-5 w-5" />
-                  <span>Changer la photo</span>
+                  <span>{t('changePhoto')}</span>
                 </button>
               </div>
             ) : (
@@ -214,8 +245,8 @@ export function MileageForm() {
                 className="w-full flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
               >
                 <Upload className="h-12 w-12 mb-4" />
-                <p className="text-lg font-medium">Prendre une photo</p>
-                <p className="text-sm">du compteur kilométrique</p>
+                <p className="text-lg font-medium">{t('takePhoto')}</p>
+                <p className="text-sm">{t('ofMileageCounter')}</p>
               </button>
             )}
 
@@ -236,7 +267,7 @@ export function MileageForm() {
             className="w-full flex items-center justify-center space-x-2 py-4 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Save className="h-5 w-5" />
-            <span>{isLoading ? 'Enregistrement...' : 'Enregistrer la saisie'}</span>
+            <span>{isLoading ? t('saving') : t('saveEntry')}</span>
           </button>
         </form>
       </div>

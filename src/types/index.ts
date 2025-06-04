@@ -6,6 +6,7 @@ export interface User {
   type: 'rider' | 'admin';
   photo?: string;
   matricule?: string;
+  password?: string;
 }
 
 export interface MileageEntry {
@@ -14,6 +15,7 @@ export interface MileageEntry {
   type: 'ouverture' | 'fermeture' | 'carburant';
   shift: 1 | 2;
   kilometrage: number;
+  amount?: number; // Montant en CDF pour les relevés carburant
   photo: string;
   timestamp: number;
   date: string;
