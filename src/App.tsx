@@ -12,6 +12,7 @@ import { RiderHome } from "@/pages/RiderHome";
 import { RiderProfile } from "@/pages/RiderProfile";
 import { MileageForm } from "@/pages/MileageForm";
 import { AdminDashboard } from "@/pages/AdminDashboard";
+import { AdminReports } from "@/pages/AdminReports";
 import { RiderDetails } from "@/pages/RiderDetails";
 import NotFound from "./pages/NotFound";
 
@@ -51,6 +52,11 @@ const App = () => (
               <Route path="/admin/dashboard" element={
                 <PrivateRoute requiredType="admin">
                   <AdminDashboard />
+                </PrivateRoute>
+              } />
+              <Route path="/admin/reports" element={
+                <PrivateRoute requiredType="admin">
+                  <AdminReports />
                 </PrivateRoute>
               } />
               <Route path="/admin/rider/:id" element={

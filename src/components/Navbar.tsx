@@ -23,9 +23,11 @@ export function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to={user.type === 'admin' ? '/admin/dashboard' : '/rider/home'} className="flex items-center space-x-2">
-              <div className="bg-blue-600 text-white p-2 rounded-lg">
-                <FileText className="h-6 w-6" />
-              </div>
+              <img 
+                src="/lovable-uploads/7c91dcb6-ae80-4998-9cbb-565facfffb57.png" 
+                alt="Logo Kilométrage" 
+                className="h-8 w-8"
+              />
               <span className="text-xl font-bold text-gray-900">Kilométrage</span>
             </Link>
           </div>

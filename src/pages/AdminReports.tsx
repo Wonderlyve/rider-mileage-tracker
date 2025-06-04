@@ -1,39 +1,63 @@
 
-import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, Camera, MapPin, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Calendar, MapPin, Clock, Filter, Camera } from 'lucide-react';
 import { User, MileageEntry } from '@/types';
 import localForage from 'localforage';
 import { ImageModal } from '@/components/ImageModal';
 
-export function RiderDetails() {
-  const { id } = useParams<{ id: string }>();
+export function AdminReports() {
   const navigate = useNavigate();
-  const [rider, setRider] = useState<User | null>(null);
+  const [riders, setRiders] = useState<User[]>([]);
   const [entries, setEntries] = useState<MileageEntry[]>([]);
+  const [filteredEntries, setFilteredEntries] = useState<MileageEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedRider, setSelectedRider] = useState('');
   const [selectedModal, setSelectedModal] = useState<{ imageUrl: string; alt: string } | null>(null);
 
   useEffect(() => {
-    loadRiderData();
-  }, [id]);
+    loadData();
+  }, []);
 
-  const loadRiderData = async () => {
+  useEffect(() => {
+    filterEntries();
+  }, [entries, selectedDate, selectedRider]);
+
+  const loadData = async () => {
     try {
-      if (!id) return;
+      const ridersData = await localForage.getItem<User[]>('riders') || [];
+      const entriesData = await localForage.getItem<MileageEntry[]>('mileageEntries') || [];
       
-      const riders = await localForage.getItem<User[]>('riders') || [];
-      const foundRider = riders.find(r => r.id === id);
-      setRider(foundRider || null);
-
-      const allEntries = await localForage.getItem<MileageEntry[]>('mileageEntries') || [];
-      const riderEntries = allEntries.filter(entry => entry.riderId === id);
-      setEntries(riderEntries.sort((a, b) => b.timestamp - a.timestamp));
+      setRiders(ridersData);
+      setEntries(entriesData.sort((a, b) => b.timestamp - a.timestamp));
     } catch (error) {
-      console.error('Error loading rider data:', error);
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const filterEntries = () => {
+    let filtered = [...entries];
+
+    if (selectedDate) {
+      const filterDate = new Date(selectedDate).toDateString();
+      filtered = filtered.filter(entry => 
+        new Date(entry.timestamp).toDateString() === filterDate
+      );
+    }
+
+    if (selectedRider) {
+      filtered = filtered.filter(entry => entry.riderId === selectedRider);
+    }
+
+    setFilteredEntries(filtered);
+  };
+
+  const getRiderName = (riderId: string) => {
+    const rider = riders.find(r => r.id === riderId);
+    return rider ? rider.name : 'Rider inconnu';
   };
 
   const formatDate = (timestamp: number) => {
@@ -85,25 +109,9 @@ export function RiderDetails() {
     );
   }
 
-  if (!rider) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Rider non trouvé</h2>
-          <button
-            onClick={() => navigate('/admin/dashboard')}
-            className="text-blue-600 hover:text-blue-800"
-          >
-            Retour au tableau de bord
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="mb-6">
           <button
             onClick={() => navigate('/admin/dashboard')}
@@ -113,21 +121,42 @@ export function RiderDetails() {
             Retour au tableau de bord
           </button>
           
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center space-x-4">
-              {rider.photo && (
-                <img
-                  src={rider.photo}
-                  alt={rider.name}
-                  className="h-16 w-16 rounded-full object-cover"
-                />
-              )}
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Rapports des Relevés</h1>
+          <p className="text-gray-600">Consultation de tous les relevés de kilométrage</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md mb-6">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <div className="flex items-center space-x-2 mb-4">
+              <Filter className="h-5 w-5 text-gray-500" />
+              <h2 className="text-lg font-semibold text-gray-900">Filtres</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{rider.name}</h1>
-                <p className="text-gray-600">{rider.email}</p>
-                {rider.matricule && (
-                  <p className="text-sm text-gray-500">Matricule: {rider.matricule}</p>
-                )}
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Rider
+                </label>
+                <select
+                  value={selectedRider}
+                  onChange={(e) => setSelectedRider(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">Tous les riders</option>
+                  {riders.map(rider => (
+                    <option key={rider.id} value={rider.id}>{rider.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
@@ -136,17 +165,17 @@ export function RiderDetails() {
         <div className="bg-white rounded-lg shadow-md">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">
-              Historique des relevés ({entries.length})
+              Relevés ({filteredEntries.length})
             </h2>
           </div>
           
           <div className="divide-y divide-gray-200">
-            {entries.length === 0 ? (
+            {filteredEntries.length === 0 ? (
               <div className="p-6 text-center text-gray-500">
-                Aucun relevé de kilométrage trouvé
+                Aucun relevé trouvé pour les critères sélectionnés
               </div>
             ) : (
-              entries.map((entry) => (
+              filteredEntries.map((entry) => (
                 <div key={entry.id} className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -156,6 +185,9 @@ export function RiderDetails() {
                         </span>
                         <span className="text-sm text-gray-500">
                           Vacation {entry.shift}
+                        </span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {getRiderName(entry.riderId)}
                         </span>
                       </div>
                       
@@ -178,7 +210,7 @@ export function RiderDetails() {
                     {entry.photo && (
                       <div className="ml-4">
                         <button
-                          onClick={() => openImageModal(entry.photo, `Photo du compteur - ${rider.name}`)}
+                          onClick={() => openImageModal(entry.photo, `Photo du compteur - ${getRiderName(entry.riderId)}`)}
                           className="relative group"
                         >
                           <img
