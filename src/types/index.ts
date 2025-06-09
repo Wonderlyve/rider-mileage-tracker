@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -19,6 +18,22 @@ export interface MileageEntry {
   kilometrage: number;
   amount?: number; // Montant en CDF pour les relevés carburant
   photo: string;
+  timestamp: number;
+  date: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface EquipmentEntry {
+  id: string;
+  riderId: string;
+  motorcycleMatricule: string;
+  phoneId: string;
+  hasHelmet: boolean;
+  hasMotorcycleDocument: boolean;
+  hasExchangeMoney: boolean;
+  matriculationPhoto: string;
+  mileagePhoto: string;
   timestamp: number;
   date: string;
   created_at?: string;

@@ -2,7 +2,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Home, User, Plus } from 'lucide-react';
+import { Home, User, Plus, Package } from 'lucide-react';
 
 export function MobileBottomNav() {
   const { user } = useAuth();
@@ -15,7 +15,7 @@ export function MobileBottomNav() {
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
-      <div className="grid grid-cols-3 h-16">
+      <div className="grid grid-cols-4 h-16">
         <Link
           to="/rider/home"
           className={`flex flex-col items-center justify-center space-y-1 ${
@@ -30,12 +30,26 @@ export function MobileBottomNav() {
         
         <Link
           to="/rider/entry"
-          className="flex flex-col items-center justify-center space-y-1 text-green-600 hover:text-green-700"
+          className={`flex flex-col items-center justify-center space-y-1 ${
+            isActive('/rider/entry')
+              ? 'text-blue-600 bg-blue-50'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
         >
-          <div className="bg-green-600 rounded-full p-2">
-            <Plus className="h-5 w-5 text-white" />
-          </div>
+          <Plus className="h-5 w-5" />
           <span className="text-xs font-medium">{t('entry')}</span>
+        </Link>
+
+        <Link
+          to="/rider/equipment"
+          className={`flex flex-col items-center justify-center space-y-1 ${
+            isActive('/rider/equipment')
+              ? 'text-blue-600 bg-blue-50'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          <Package className="h-5 w-5" />
+          <span className="text-xs font-medium">Équipements</span>
         </Link>
         
         <Link

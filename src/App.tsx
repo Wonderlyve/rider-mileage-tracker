@@ -13,6 +13,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { RiderHome } from "@/pages/RiderHome";
 import { RiderProfile } from "@/pages/RiderProfile";
 import { MileageForm } from "@/pages/MileageForm";
+import { EquipmentForm } from "@/pages/EquipmentForm";
 import { AdminDashboard } from "@/pages/AdminDashboard";
 import { AdminReports } from "@/pages/AdminReports";
 import { RiderDetails } from "@/pages/RiderDetails";
@@ -48,6 +49,11 @@ const App = () => (
                 <Route path="/rider/entry" element={
                   <PrivateRoute requiredType="rider">
                     <MileageForm />
+                  </PrivateRoute>
+                } />
+                <Route path="/rider/equipment" element={
+                  <PrivateRoute requiredType="rider">
+                    <EquipmentForm />
                   </PrivateRoute>
                 } />
                 

@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, TrendingUp, Calendar, Download, Eye, Search, UserPlus, FileText } from 'lucide-react';
-import { User, MileageEntry } from '@/types';
+import { Users, TrendingUp, Calendar, Download, Eye, Search, UserPlus, FileText, Package } from 'lucide-react';
+import { User, MileageEntry, EquipmentEntry } from '@/types';
 import localForage from 'localforage';
 import { RiderManagement } from '@/components/RiderManagement';
+import { EquipmentManagement } from '@/components/EquipmentManagement';
 
 export function AdminDashboard() {
   const [riders, setRiders] = useState<User[]>([]);
   const [entries, setEntries] = useState<MileageEntry[]>([]);
+  const [equipmentEntries, setEquipmentEntries] = useState<EquipmentEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'riders'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'riders' | 'equipment'>('overview');
 
   useEffect(() => {
     loadData();
@@ -20,9 +22,11 @@ export function AdminDashboard() {
     try {
       const ridersData = await localForage.getItem<User[]>('riders') || [];
       const entriesData = await localForage.getItem<MileageEntry[]>('mileageEntries') || [];
+      const equipmentData = await localForage.getItem<EquipmentEntry[]>('equipmentEntries') || [];
       
       setRiders(ridersData);
       setEntries(entriesData);
+      setEquipmentEntries(equipmentData);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -110,11 +114,21 @@ export function AdminDashboard() {
           >
             Gestion des riders
           </button>
+          <button
+            onClick={() => setActiveTab('equipment')}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              activeTab === 'equipment'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            Équipements
+          </button>
         </div>
 
         {activeTab === 'overview' && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex items-center">
                   <div className="p-2 bg-blue-100 rounded-lg">
@@ -135,6 +149,18 @@ export function AdminDashboard() {
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600">Total Relevés</p>
                     <p className="text-2xl font-bold text-gray-900">{entries.length}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Package className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Équipements</p>
+                    <p className="text-2xl font-bold text-gray-900">{equipmentEntries.length}</p>
                   </div>
                 </div>
               </div>
@@ -286,6 +312,7 @@ export function AdminDashboard() {
         )}
 
         {activeTab === 'riders' && <RiderManagement />}
+        {activeTab === 'equipment' && <EquipmentManagement />}
       </div>
     </div>
   );

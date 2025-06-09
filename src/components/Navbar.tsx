@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
-import { LogOut, User, Home } from 'lucide-react';
+import { LogOut, User, Home, Package } from 'lucide-react';
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -48,6 +48,17 @@ export function Navbar() {
                 >
                   <Home className="h-4 w-4 inline mr-1" />
                   {t('home')}
+                </Link>
+                <Link
+                  to="/rider/equipment"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    isActive('/rider/equipment')
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <Package className="h-4 w-4 inline mr-1" />
+                  Équipements
                 </Link>
                 <Link
                   to="/rider/profile"
