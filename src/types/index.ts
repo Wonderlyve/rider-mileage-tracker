@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   name: string;
@@ -30,6 +29,7 @@ export interface EquipmentEntry {
   riderId: string;
   motorcycleMatricule: string;
   phoneId: string;
+  shift: 1 | 2;
   hasHelmet: boolean;
   hasMotorcycleDocument: boolean;
   hasExchangeMoney: boolean;

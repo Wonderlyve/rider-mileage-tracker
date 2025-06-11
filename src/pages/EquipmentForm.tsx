@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,6 +19,7 @@ export function EquipmentForm() {
   const [formData, setFormData] = useState({
     motorcycleMatricule: '',
     phoneId: '',
+    shift: 1 as 1 | 2,
     hasHelmet: false,
     hasMotorcycleDocument: false,
     hasExchangeMoney: false,
@@ -80,6 +80,7 @@ export function EquipmentForm() {
         riderId: user!.id,
         motorcycleMatricule: formData.motorcycleMatricule,
         phoneId: formData.phoneId,
+        shift: formData.shift,
         hasHelmet: formData.hasHelmet,
         hasMotorcycleDocument: formData.hasMotorcycleDocument,
         hasExchangeMoney: formData.hasExchangeMoney,
@@ -121,6 +122,7 @@ export function EquipmentForm() {
 👤 *Chauffeur:* ${user?.name}
 🏷️ *Matricule:* ${user?.matricule}
 📅 *Date:* ${new Date(savedEntry.timestamp).toLocaleDateString('fr-FR')}
+🔄 *Shift:* ${savedEntry.shift}
 
 📋 *DÉTAILS:*
 🏍️ Matricule moto: ${savedEntry.motorcycleMatricule}
@@ -164,6 +166,10 @@ CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
                 <div>
                   <span className="font-medium text-gray-600">ID téléphone:</span>
                   <p className="text-gray-900">{savedEntry.phoneId}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">Shift:</span>
+                  <p className="text-gray-900">Shift {savedEntry.shift}</p>
                 </div>
               </div>
 
@@ -209,18 +215,18 @@ CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="space-y-3 pt-4">
                 <Button
                   onClick={generateWhatsAppReport}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  className="w-full bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  Envoyer mon rapport WhatsApp
+                  Partager mon rapport WhatsApp
                 </Button>
                 <Button
                   onClick={() => navigate('/rider/home')}
                   variant="outline"
-                  className="flex-1"
+                  className="w-full"
                 >
                   Retour à l'accueil
                 </Button>
@@ -269,6 +275,21 @@ CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
                 placeholder="Entrez l'ID du téléphone"
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Shift *
+              </label>
+              <select
+                value={formData.shift}
+                onChange={(e) => setFormData({ ...formData, shift: parseInt(e.target.value) as 1 | 2 })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value={1}>Shift 1</option>
+                <option value={2}>Shift 2</option>
+              </select>
             </div>
 
             <div className="space-y-4">

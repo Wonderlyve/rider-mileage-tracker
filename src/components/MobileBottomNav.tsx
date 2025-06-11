@@ -11,6 +11,9 @@ export function MobileBottomNav() {
 
   if (!user || user.type !== 'rider') return null;
 
+  // Masquer la navigation sur la page d'accueil
+  if (location.pathname === '/rider/home') return null;
+
   const isActive = (path: string) => location.pathname === path;
 
   return (
