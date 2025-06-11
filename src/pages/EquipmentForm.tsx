@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -142,12 +141,25 @@ CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
     try {
       // Check if Web Share API is available and supports files
       if (navigator.share && navigator.canShare) {
-        // Convert base64 images to files
-        const matriculationBlob = await fetch(savedEntry.matriculationPhoto).then(r => r.blob());
-        const mileageBlob = await fetch(savedEntry.mileagePhoto).then(r => r.blob());
+        // Convert base64 images to JPEG blobs with higher quality
+        const matriculationResponse = await fetch(savedEntry.matriculationPhoto);
+        const matriculationBlob = await matriculationResponse.blob();
         
-        const matriculationFile = new File([matriculationBlob], 'matriculation.jpg', { type: 'image/jpeg' });
-        const mileageFile = new File([mileageBlob], 'kilometrage.jpg', { type: 'image/jpeg' });
+        const mileageResponse = await fetch(savedEntry.mileagePhoto);
+        const mileageBlob = await mileageResponse.blob();
+        
+        // Create JPEG files with descriptive names
+        const matriculationFile = new File(
+          [matriculationBlob], 
+          `matriculation_${savedEntry.motorcycleMatricule}_${savedEntry.date}.jpg`, 
+          { type: 'image/jpeg' }
+        );
+        
+        const mileageFile = new File(
+          [mileageBlob], 
+          `kilometrage_${savedEntry.motorcycleMatricule}_${savedEntry.date}.jpg`, 
+          { type: 'image/jpeg' }
+        );
         
         const shareData = {
           title: 'Rapport d\'équipement',
@@ -155,8 +167,15 @@ CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
           files: [matriculationFile, mileageFile]
         };
 
+        // Check if files can be shared
         if (navigator.canShare(shareData)) {
           await navigator.share(shareData);
+          
+          toast({
+            title: "Rapport partagé",
+            description: "Le rapport avec les photos a été partagé avec succès",
+            variant: "default"
+          });
           return;
         }
       }
@@ -168,15 +187,22 @@ CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
       // Show message about photos
       toast({
         title: "Photos à partager",
-        description: "Veuillez partager les photos séparément après avoir envoyé le message",
+        description: "Le message a été envoyé. Veuillez partager les photos séparément",
         variant: "default"
       });
       
     } catch (error) {
       console.error('Error sharing:', error);
-      // Fallback to WhatsApp URL
+      
+      // Final fallback to WhatsApp URL
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(reportText)}`;
       window.open(whatsappUrl, '_blank');
+      
+      toast({
+        title: "Partage en mode texte",
+        description: "Le message a été envoyé. Veuillez partager les photos manuellement",
+        variant: "default"
+      });
     }
   };
 
