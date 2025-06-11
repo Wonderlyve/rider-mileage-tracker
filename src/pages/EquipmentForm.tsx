@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
-import { Camera, Upload, Send } from 'lucide-react';
+import { Camera, Upload, Send, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EquipmentEntry } from '@/types';
@@ -113,7 +113,7 @@ export function EquipmentForm() {
     }
   };
 
-  const generateWhatsAppReport = () => {
+  const shareOnWhatsApp = async () => {
     if (!savedEntry) return;
 
     const reportText = `🏍️ *RAPPORT D'ÉQUIPEMENT*
@@ -135,10 +135,49 @@ ${savedEntry.hasExchangeMoney ? `💰 *MONNAIE D'ÉCHANGE:*
 USD: $${savedEntry.exchangeMoneyUSD}
 CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
 
-📸 Photos: Matriculation + Kilométrage jointes`;
+📸 *PHOTOS JOINTES:*
+- Photo matriculation
+- Photo kilométrage`;
 
-    const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(reportText)}`;
-    window.open(whatsappUrl, '_blank');
+    try {
+      // Check if Web Share API is available and supports files
+      if (navigator.share && navigator.canShare) {
+        // Convert base64 images to files
+        const matriculationBlob = await fetch(savedEntry.matriculationPhoto).then(r => r.blob());
+        const mileageBlob = await fetch(savedEntry.mileagePhoto).then(r => r.blob());
+        
+        const matriculationFile = new File([matriculationBlob], 'matriculation.jpg', { type: 'image/jpeg' });
+        const mileageFile = new File([mileageBlob], 'kilometrage.jpg', { type: 'image/jpeg' });
+        
+        const shareData = {
+          title: 'Rapport d\'équipement',
+          text: reportText,
+          files: [matriculationFile, mileageFile]
+        };
+
+        if (navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+          return;
+        }
+      }
+      
+      // Fallback: Use WhatsApp URL with text only
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(reportText)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      // Show message about photos
+      toast({
+        title: "Photos à partager",
+        description: "Veuillez partager les photos séparément après avoir envoyé le message",
+        variant: "default"
+      });
+      
+    } catch (error) {
+      console.error('Error sharing:', error);
+      // Fallback to WhatsApp URL
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(reportText)}`;
+      window.open(whatsappUrl, '_blank');
+    }
   };
 
   if (savedEntry) {
@@ -209,20 +248,21 @@ CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4">
                 <Button
-                  onClick={generateWhatsAppReport}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                  onClick={shareOnWhatsApp}
+                  className="w-full sm:flex-1 bg-green-600 hover:bg-green-700 text-white order-1"
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  Envoyer mon rapport WhatsApp
+                  <span className="truncate">Partager mon rapport</span>
                 </Button>
                 <Button
                   onClick={() => navigate('/rider/home')}
                   variant="outline"
-                  className="flex-1"
+                  className="w-full sm:flex-1 order-2"
                 >
-                  Retour à l'accueil
+                  <Home className="h-4 w-4 mr-2" />
+                  <span className="truncate">Retour à l'accueil</span>
                 </Button>
               </div>
             </CardContent>
