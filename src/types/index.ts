@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   name: string;
@@ -32,6 +33,8 @@ export interface EquipmentEntry {
   hasHelmet: boolean;
   hasMotorcycleDocument: boolean;
   hasExchangeMoney: boolean;
+  exchangeMoneyUSD?: number; // Montant en USD
+  exchangeMoneyCDF?: number; // Montant en CDF
   matriculationPhoto: string;
   mileagePhoto: string;
   timestamp: number;

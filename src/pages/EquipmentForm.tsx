@@ -5,8 +5,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
-import { Camera, Upload } from 'lucide-react';
+import { Camera, Upload, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EquipmentEntry } from '@/types';
 import localForage from 'localforage';
 
@@ -21,12 +22,15 @@ export function EquipmentForm() {
     phoneId: '',
     hasHelmet: false,
     hasMotorcycleDocument: false,
-    hasExchangeMoney: false
+    hasExchangeMoney: false,
+    exchangeMoneyUSD: '',
+    exchangeMoneyCDF: ''
   });
   
   const [matriculationPhoto, setMatriculationPhoto] = useState<string>('');
   const [mileagePhoto, setMileagePhoto] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [savedEntry, setSavedEntry] = useState<EquipmentEntry | null>(null);
   
   const matriculationInputRef = useRef<HTMLInputElement>(null);
   const mileageInputRef = useRef<HTMLInputElement>(null);
@@ -59,6 +63,15 @@ export function EquipmentForm() {
       return;
     }
 
+    if (formData.hasExchangeMoney && (!formData.exchangeMoneyUSD || !formData.exchangeMoneyCDF)) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez renseigner les montants USD et CDF pour la monnaie d'échange",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -70,6 +83,8 @@ export function EquipmentForm() {
         hasHelmet: formData.hasHelmet,
         hasMotorcycleDocument: formData.hasMotorcycleDocument,
         hasExchangeMoney: formData.hasExchangeMoney,
+        exchangeMoneyUSD: formData.hasExchangeMoney ? parseFloat(formData.exchangeMoneyUSD) : undefined,
+        exchangeMoneyCDF: formData.hasExchangeMoney ? parseFloat(formData.exchangeMoneyCDF) : undefined,
         matriculationPhoto,
         mileagePhoto,
         timestamp: Date.now(),
@@ -79,12 +94,13 @@ export function EquipmentForm() {
       const existingEntries = await localForage.getItem<EquipmentEntry[]>('equipmentEntries') || [];
       await localForage.setItem('equipmentEntries', [...existingEntries, equipmentEntry]);
 
+      setSavedEntry(equipmentEntry);
+
       toast({
         title: "Succès",
         description: "Équipement enregistré avec succès"
       });
 
-      navigate('/rider/home');
     } catch (error) {
       console.error('Error saving equipment:', error);
       toast({
@@ -96,6 +112,125 @@ export function EquipmentForm() {
       setIsSubmitting(false);
     }
   };
+
+  const generateWhatsAppReport = () => {
+    if (!savedEntry) return;
+
+    const reportText = `🏍️ *RAPPORT D'ÉQUIPEMENT*
+
+👤 *Chauffeur:* ${user?.name}
+🏷️ *Matricule:* ${user?.matricule}
+📅 *Date:* ${new Date(savedEntry.timestamp).toLocaleDateString('fr-FR')}
+
+📋 *DÉTAILS:*
+🏍️ Matricule moto: ${savedEntry.motorcycleMatricule}
+📱 ID téléphone: ${savedEntry.phoneId}
+
+✅ *ÉQUIPEMENTS:*
+${savedEntry.hasHelmet ? '✅' : '❌'} Casque
+${savedEntry.hasMotorcycleDocument ? '✅' : '❌'} Document moto
+${savedEntry.hasExchangeMoney ? '✅' : '❌'} Monnaie d'échange
+
+${savedEntry.hasExchangeMoney ? `💰 *MONNAIE D'ÉCHANGE:*
+USD: $${savedEntry.exchangeMoneyUSD}
+CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
+
+📸 Photos: Matriculation + Kilométrage jointes`;
+
+    const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(reportText)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  if (savedEntry) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="mb-6">
+            <BackButton to="/rider/home" />
+          </div>
+
+          <Card className="bg-white shadow-md">
+            <CardHeader className="bg-green-50">
+              <CardTitle className="text-green-800 flex items-center gap-2">
+                ✅ Équipement enregistré avec succès
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="font-medium text-gray-600">Matricule moto:</span>
+                  <p className="text-gray-900">{savedEntry.motorcycleMatricule}</p>
+                </div>
+                <div>
+                  <span className="font-medium text-gray-600">ID téléphone:</span>
+                  <p className="text-gray-900">{savedEntry.phoneId}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-600">Équipements:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {savedEntry.hasHelmet && (
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Casque</span>
+                  )}
+                  {savedEntry.hasMotorcycleDocument && (
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">Document moto</span>
+                  )}
+                  {savedEntry.hasExchangeMoney && (
+                    <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">Monnaie d'échange</span>
+                  )}
+                </div>
+              </div>
+
+              {savedEntry.hasExchangeMoney && (
+                <div className="bg-yellow-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-yellow-800 mb-2">Monnaie d'échange:</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-yellow-700">USD:</span>
+                      <p className="font-semibold">${savedEntry.exchangeMoneyUSD}</p>
+                    </div>
+                    <div>
+                      <span className="text-yellow-700">CDF:</span>
+                      <p className="font-semibold">{savedEntry.exchangeMoneyCDF?.toLocaleString()} FC</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium text-gray-600 mb-2">Photo matriculation:</h4>
+                  <img src={savedEntry.matriculationPhoto} alt="Matriculation" className="w-full h-32 object-cover rounded border" />
+                </div>
+                <div>
+                  <h4 className="font-medium text-gray-600 mb-2">Photo kilométrage:</h4>
+                  <img src={savedEntry.mileagePhoto} alt="Kilométrage" className="w-full h-32 object-cover rounded border" />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={generateWhatsAppReport}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Envoyer mon rapport WhatsApp
+                </Button>
+                <Button
+                  onClick={() => navigate('/rider/home')}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Retour à l'accueil
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -163,17 +298,52 @@ export function EquipmentForm() {
                 </label>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="money"
-                  checked={formData.hasExchangeMoney}
-                  onChange={(e) => setFormData({ ...formData, hasExchangeMoney: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="money" className="ml-2 block text-sm text-gray-900">
-                  Monnaie d'échange
-                </label>
+              <div className="space-y-3">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="money"
+                    checked={formData.hasExchangeMoney}
+                    onChange={(e) => setFormData({ ...formData, hasExchangeMoney: e.target.checked })}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="money" className="ml-2 block text-sm text-gray-900">
+                    Monnaie d'échange
+                  </label>
+                </div>
+
+                {formData.hasExchangeMoney && (
+                  <div className="ml-6 space-y-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Montant USD *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.exchangeMoneyUSD}
+                        onChange={(e) => setFormData({ ...formData, exchangeMoneyUSD: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="0.00"
+                        required={formData.hasExchangeMoney}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Montant CDF *
+                      </label>
+                      <input
+                        type="number"
+                        step="1"
+                        value={formData.exchangeMoneyCDF}
+                        onChange={(e) => setFormData({ ...formData, exchangeMoneyCDF: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="0"
+                        required={formData.hasExchangeMoney}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
