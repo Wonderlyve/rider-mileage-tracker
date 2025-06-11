@@ -1,10 +1,11 @@
+
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/BackButton';
-import { Camera, Upload, Send, Home } from 'lucide-react';
+import { Camera, Upload, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EquipmentEntry } from '@/types';
@@ -112,7 +113,7 @@ export function EquipmentForm() {
     }
   };
 
-  const shareOnWhatsApp = async () => {
+  const generateWhatsAppReport = () => {
     if (!savedEntry) return;
 
     const reportText = `🏍️ *RAPPORT D'ÉQUIPEMENT*
@@ -134,76 +135,10 @@ ${savedEntry.hasExchangeMoney ? `💰 *MONNAIE D'ÉCHANGE:*
 USD: $${savedEntry.exchangeMoneyUSD}
 CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
 
-📸 *PHOTOS JOINTES:*
-- Photo matriculation
-- Photo kilométrage`;
+📸 Photos: Matriculation + Kilométrage jointes`;
 
-    try {
-      // Check if Web Share API is available and supports files
-      if (navigator.share && navigator.canShare) {
-        // Convert base64 images to JPEG blobs with higher quality
-        const matriculationResponse = await fetch(savedEntry.matriculationPhoto);
-        const matriculationBlob = await matriculationResponse.blob();
-        
-        const mileageResponse = await fetch(savedEntry.mileagePhoto);
-        const mileageBlob = await mileageResponse.blob();
-        
-        // Create JPEG files with descriptive names
-        const matriculationFile = new File(
-          [matriculationBlob], 
-          `matriculation_${savedEntry.motorcycleMatricule}_${savedEntry.date}.jpg`, 
-          { type: 'image/jpeg' }
-        );
-        
-        const mileageFile = new File(
-          [mileageBlob], 
-          `kilometrage_${savedEntry.motorcycleMatricule}_${savedEntry.date}.jpg`, 
-          { type: 'image/jpeg' }
-        );
-        
-        const shareData = {
-          title: 'Rapport d\'équipement',
-          text: reportText,
-          files: [matriculationFile, mileageFile]
-        };
-
-        // Check if files can be shared
-        if (navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-          
-          toast({
-            title: "Rapport partagé",
-            description: "Le rapport avec les photos a été partagé avec succès",
-            variant: "default"
-          });
-          return;
-        }
-      }
-      
-      // Fallback: Use WhatsApp URL with text only
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(reportText)}`;
-      window.open(whatsappUrl, '_blank');
-      
-      // Show message about photos
-      toast({
-        title: "Photos à partager",
-        description: "Le message a été envoyé. Veuillez partager les photos séparément",
-        variant: "default"
-      });
-      
-    } catch (error) {
-      console.error('Error sharing:', error);
-      
-      // Final fallback to WhatsApp URL
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(reportText)}`;
-      window.open(whatsappUrl, '_blank');
-      
-      toast({
-        title: "Partage en mode texte",
-        description: "Le message a été envoyé. Veuillez partager les photos manuellement",
-        variant: "default"
-      });
-    }
+    const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(reportText)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   if (savedEntry) {
@@ -274,21 +209,20 @@ CDF: ${savedEntry.exchangeMoneyCDF?.toLocaleString()} FC` : ''}
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <div className="flex gap-3 pt-4">
                 <Button
-                  onClick={shareOnWhatsApp}
-                  className="w-full sm:flex-1 bg-green-600 hover:bg-green-700 text-white order-1"
+                  onClick={generateWhatsAppReport}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Send className="h-4 w-4 mr-2" />
-                  <span className="truncate">Partager mon rapport</span>
+                  Envoyer mon rapport WhatsApp
                 </Button>
                 <Button
                   onClick={() => navigate('/rider/home')}
                   variant="outline"
-                  className="w-full sm:flex-1 order-2"
+                  className="flex-1"
                 >
-                  <Home className="h-4 w-4 mr-2" />
-                  <span className="truncate">Retour à l'accueil</span>
+                  Retour à l'accueil
                 </Button>
               </div>
             </CardContent>
