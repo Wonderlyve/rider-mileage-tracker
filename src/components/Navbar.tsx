@@ -13,7 +13,7 @@ export function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/auth');
   };
 
   if (!user) return null;

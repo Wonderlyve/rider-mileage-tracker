@@ -4,6 +4,7 @@ import { User, MileageEntry, EquipmentEntry } from '@/types';
 
 // User/Profile operations
 export const createProfile = async (userData: {
+  id: string;
   name: string;
   email: string;
   type: 'rider' | 'admin';

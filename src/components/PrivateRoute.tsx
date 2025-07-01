@@ -19,7 +19,7 @@ export function PrivateRoute({ children, requiredType }: PrivateRouteProps) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   if (requiredType && user.type !== requiredType) {
