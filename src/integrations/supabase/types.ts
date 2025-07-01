@@ -9,13 +9,157 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      equipment_entries: {
+        Row: {
+          created_at: string | null
+          date: string
+          exchange_money_cdf: number | null
+          exchange_money_usd: number | null
+          has_exchange_money: boolean
+          has_helmet: boolean
+          has_motorcycle_document: boolean
+          id: string
+          matriculation_photo_url: string | null
+          mileage_photo_url: string | null
+          motorcycle_matricule: string
+          phone_id: string
+          rider_id: string
+          shift: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string
+          exchange_money_cdf?: number | null
+          exchange_money_usd?: number | null
+          has_exchange_money?: boolean
+          has_helmet?: boolean
+          has_motorcycle_document?: boolean
+          id?: string
+          matriculation_photo_url?: string | null
+          mileage_photo_url?: string | null
+          motorcycle_matricule: string
+          phone_id: string
+          rider_id: string
+          shift: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          exchange_money_cdf?: number | null
+          exchange_money_usd?: number | null
+          has_exchange_money?: boolean
+          has_helmet?: boolean
+          has_motorcycle_document?: boolean
+          id?: string
+          matriculation_photo_url?: string | null
+          mileage_photo_url?: string | null
+          motorcycle_matricule?: string
+          phone_id?: string
+          rider_id?: string
+          shift?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_entries_rider_id_fkey"
+            columns: ["rider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mileage_entries: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          date: string
+          id: string
+          kilometrage: number
+          photo_url: string
+          rider_id: string
+          shift: number
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          kilometrage: number
+          photo_url: string
+          rider_id: string
+          shift: number
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          kilometrage?: number
+          photo_url?: string
+          rider_id?: string
+          shift?: number
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mileage_entries_rider_id_fkey"
+            columns: ["rider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          matricule: string | null
+          name: string
+          photo_url: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          matricule?: string | null
+          name: string
+          photo_url?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          matricule?: string | null
+          name?: string
+          photo_url?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

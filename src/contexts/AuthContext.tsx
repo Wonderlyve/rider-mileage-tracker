@@ -1,95 +1,80 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, AuthContextType } from '@/types';
-import localForage from 'localforage';
+import { supabase } from '@/integrations/supabase/client';
+import { Session } from '@supabase/supabase-js';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_CREDENTIALS = {
-  email: 'shoppirideradmin@shoppi.cd',
-  password: 'Myadminriders'
-};
-
-const mockRiders: User[] = [
-  {
-    id: '1',
-    name: 'Jean-Claude Mulumba',
-    email: 'jc.mulumba@shoppi.cd',
-    type: 'rider',
-    photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
-    matricule: 'KIN-001'
-  },
-  {
-    id: '2',
-    name: 'Marie Kabila',
-    email: 'marie.kabila@shoppi.cd',
-    type: 'rider',
-    photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b814?w=100&h=100&fit=crop&crop=face',
-    matricule: 'KIN-002'
-  },
-  {
-    id: '3',
-    name: 'Pascal Mokoko',
-    email: 'pascal.mokoko@shoppi.cd',
-    type: 'rider',
-    photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-    matricule: 'KIN-003'
-  }
-];
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    initializeAuth();
-  }, []);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.id);
+        setSession(session);
+        
+        if (session?.user) {
+          // Fetch user profile from profiles table
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
 
-  const initializeAuth = async () => {
-    try {
-      const savedUser = await localForage.getItem<User>('currentUser');
-      if (savedUser) {
-        setUser(savedUser);
+          if (profile && !error) {
+            const userData: User = {
+              id: profile.id,
+              name: profile.name,
+              email: profile.email,
+              type: profile.type as 'rider' | 'admin',
+              photo: profile.photo_url || undefined,
+              matricule: profile.matricule || undefined,
+              created_at: profile.created_at,
+              updated_at: profile.updated_at
+            };
+            setUser(userData);
+          } else {
+            console.error('Error fetching user profile:', error);
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
+        setIsLoading(false);
       }
-      
-      // Initialize riders in storage
-      const existingRiders = await localForage.getItem<User[]>('riders');
-      if (!existingRiders) {
-        await localForage.setItem('riders', mockRiders);
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // The onAuthStateChange will handle setting the user
+        setSession(session);
+      } else {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Error initializing auth:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Check admin credentials
-      if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-        const adminUser: User = {
-          id: 'admin',
-          name: 'Administrateur',
-          email: email,
-          type: 'admin'
-        };
-        await localForage.setItem('currentUser', adminUser);
-        setUser(adminUser);
-        return true;
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        return false;
       }
 
-      // Check rider credentials
-      const riders = await localForage.getItem<User[]>('riders') || [];
-      const rider = riders.find(r => r.email === email);
-      
-      if (rider && password === 'rider123') { // Simple password for demo
-        await localForage.setItem('currentUser', rider);
-        setUser(rider);
-        return true;
-      }
-
-      return false;
+      return !!data.user;
     } catch (error) {
       console.error('Login error:', error);
       return false;
@@ -98,8 +83,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await localForage.removeItem('currentUser');
-      setUser(null);
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Logout error:', error);
+      }
     } catch (error) {
       console.error('Logout error:', error);
     }
