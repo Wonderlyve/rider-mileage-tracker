@@ -28,10 +28,10 @@ export function Navbar() {
             <Link to={user.type === 'admin' ? '/admin/dashboard' : '/rider/home'} className="flex items-center space-x-2">
               <img 
                 src="/lovable-uploads/7c91dcb6-ae80-4998-9cbb-565facfffb57.png" 
-                alt="Logo Kilométrage" 
+                alt="Logo Gestion de Riders" 
                 className="h-8 w-8"
               />
-              <span className="text-xl font-bold text-gray-900 hidden sm:inline">Kilométrage</span>
+              <span className="text-xl font-bold text-gray-900 hidden sm:inline">{t('appName')}</span>
             </Link>
           </div>
 
@@ -58,7 +58,7 @@ export function Navbar() {
                   }`}
                 >
                   <Package className="h-4 w-4 inline mr-1" />
-                  Équipements
+                  {t('equipment')}
                 </Link>
                 <Link
                   to="/rider/profile"

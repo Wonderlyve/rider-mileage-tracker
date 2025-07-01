@@ -11,6 +11,10 @@ interface Translations {
 }
 
 const translations: Translations = {
+  // App name
+  appName: { fr: 'Gestion de Riders', en: 'Rider Management' },
+  appSubtitle: { fr: 'Système de gestion des riders', en: 'Rider management system' },
+  
   // Navigation
   home: { fr: 'Accueil', en: 'Home' },
   profile: { fr: 'Profil', en: 'Profile' },
@@ -18,7 +22,6 @@ const translations: Translations = {
   back: { fr: 'Retour', en: 'Back' },
   
   // Login page
-  appName: { fr: 'Kilométrage', en: 'Mileage' },
   loginSubtitle: { fr: 'Connectez-vous à votre compte', en: 'Sign in to your account' },
   connect: { fr: 'Se connecter', en: 'Sign in' },
   connecting: { fr: 'Connexion...', en: 'Signing in...' },
@@ -48,6 +51,20 @@ const translations: Translations = {
   saveEntry: { fr: 'Enregistrer la saisie', en: 'Save Entry' },
   saving: { fr: 'Enregistrement...', en: 'Saving...' },
   
+  // Equipment
+  equipment: { fr: 'Équipements', en: 'Equipment' },
+  equipmentForm: { fr: 'Formulaire d\'équipement', en: 'Equipment Form' },
+  motorcycleRegistration: { fr: 'Matricule de la moto', en: 'Motorcycle Registration' },
+  phoneId: { fr: 'ID du téléphone', en: 'Phone ID' },
+  helmet: { fr: 'Casque', en: 'Helmet' },
+  motorcycleDocuments: { fr: 'Documents de la moto', en: 'Motorcycle Documents' },
+  exchangeMoney: { fr: 'Monnaie d\'échange', en: 'Exchange Money' },
+  exchangeMoneyUSD: { fr: 'Montant en USD', en: 'Amount in USD' },
+  exchangeMoneyCDF: { fr: 'Montant en CDF', en: 'Amount in CDF' },
+  registrationPhoto: { fr: 'Photo de matriculation', en: 'Registration Photo' },
+  mileagePhoto: { fr: 'Photo de kilométrage', en: 'Mileage Photo' },
+  saveEquipment: { fr: 'Enregistrer l\'équipement', en: 'Save Equipment' },
+  
   // Admin
   adminDashboard: { fr: 'Tableau de bord administrateur', en: 'Admin Dashboard' },
   riderManagement: { fr: 'Gestion des riders', en: 'Rider Management' },
@@ -68,6 +85,17 @@ const translations: Translations = {
   riderDetails: { fr: 'Détails du rider', en: 'Rider details' },
   mileageEntries: { fr: 'Relevés kilométriques', en: 'Mileage entries' },
   noEntries: { fr: 'Aucun relevé trouvé', en: 'No entries found' },
+  administrators: { fr: 'Administrateurs', en: 'Administrators' },
+  adminUserManagement: { fr: 'Gestion des comptes administrateurs', en: 'Administrator Account Management' },
+  newAdministrator: { fr: 'Nouvel administrateur', en: 'New Administrator' },
+  editAdministrator: { fr: 'Modifier administrateur', en: 'Edit Administrator' },
+  confirmPassword: { fr: 'Confirmer le mot de passe', en: 'Confirm Password' },
+  passwordsDontMatch: { fr: 'Les mots de passe ne correspondent pas', en: 'Passwords do not match' },
+  saveError: { fr: 'Erreur lors de la sauvegarde', en: 'Error while saving' },
+  deleteConfirm: { fr: 'Êtes-vous sûr de vouloir supprimer cet administrateur ?', en: 'Are you sure you want to delete this administrator?' },
+  deleteError: { fr: 'Erreur lors de la suppression', en: 'Error while deleting' },
+  creationDate: { fr: 'Date de création', en: 'Creation Date' },
+  noAdministrators: { fr: 'Aucun administrateur enregistré', en: 'No administrators registered' },
   
   // Rider Profile
   myProfile: { fr: 'Mon Profil', en: 'My Profile' },
@@ -79,6 +107,7 @@ const translations: Translations = {
   
   // Common fields
   name: { fr: 'Nom', en: 'Name' },
+  fullName: { fr: 'Nom complet', en: 'Full Name' },
   email: { fr: 'Email', en: 'Email' },
   matricule: { fr: 'Matricule', en: 'ID Number' },
   password: { fr: 'Mot de passe', en: 'Password' },
@@ -95,6 +124,8 @@ const translations: Translations = {
   type: { fr: 'Type', en: 'Type' },
   shift: { fr: 'Shift', en: 'Shift' },
   mileage: { fr: 'Kilométrage', en: 'Mileage' },
+  contact: { fr: 'Contact', en: 'Contact' },
+  rider: { fr: 'Rider', en: 'Rider' },
   
   // Common
   yes: { fr: 'Oui', en: 'Yes' },
@@ -107,7 +138,46 @@ const translations: Translations = {
   english: { fr: 'Anglais', en: 'English' },
   
   // Mobile navigation
-  entry: { fr: 'Saisie', en: 'Entry' }
+  entry: { fr: 'Saisie', en: 'Entry' },
+  
+  // Filters and search
+  filters: { fr: 'Filtres', en: 'Filters' },
+  search: { fr: 'Recherche', en: 'Search' },
+  searchPlaceholder: { fr: 'Nom, matricule, téléphone...', en: 'Name, registration, phone...' },
+  allRidersFilter: { fr: 'Tous les riders', en: 'All riders' },
+  noResultsFound: { fr: 'Aucun résultat trouvé', en: 'No results found' },
+  noEquipmentFound: { fr: 'Aucun enregistrement d\'équipement trouvé', en: 'No equipment records found' },
+  noSearchResults: { fr: 'Aucun rider trouvé pour cette recherche', en: 'No rider found for this search' },
+  noRidersRegistered: { fr: 'Aucun rider enregistré', en: 'No riders registered' },
+  
+  // Equipment specific
+  equipmentRecords: { fr: 'Équipements enregistrés', en: 'Equipment Records' },
+  equipmentFilters: { fr: 'Filtres des équipements', en: 'Equipment Filters' },
+  motorcycleInfo: { fr: 'Informations moto', en: 'Motorcycle Information' },
+  phoneInfo: { fr: 'Informations téléphone', en: 'Phone Information' },
+  documents: { fr: 'Documents', en: 'Documents' },
+  
+  // Status and states
+  recorded: { fr: 'Enregistré', en: 'Recorded' },
+  pending: { fr: 'En attente', en: 'Pending' },
+  completed: { fr: 'Terminé', en: 'Completed' },
+  active: { fr: 'Actif', en: 'Active' },
+  inactive: { fr: 'Inactif', en: 'Inactive' },
+  
+  // Time periods
+  morning: { fr: 'Matin', en: 'Morning' },
+  afternoon: { fr: 'Après-midi', en: 'Afternoon' },
+  vacation: { fr: 'Vacation', en: 'Shift' },
+  
+  // Messages
+  entrySavedSuccessfully: { fr: 'Saisie enregistrée avec succès', en: 'Entry saved successfully' },
+  equipmentSavedSuccessfully: { fr: 'Équipement enregistré avec succès', en: 'Equipment saved successfully' },
+  dataLoadError: { fr: 'Erreur lors du chargement des données', en: 'Error loading data' },
+  
+  // WhatsApp and reporting
+  whatsappReport: { fr: 'Rapport WhatsApp', en: 'WhatsApp Report' },
+  sendReport: { fr: 'Envoyer le rapport', en: 'Send Report' },
+  reportGenerated: { fr: 'Rapport généré', en: 'Report generated' }
 };
 
 interface LanguageContextType {
