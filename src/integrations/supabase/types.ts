@@ -9,75 +9,13 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_users: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          password_hash: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          password_hash: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          password_hash?: string
-        }
-        Relationships: []
-      }
-      projects: {
-        Row: {
-          budget: number
-          description: string
-          email: string
-          full_name: string
-          id: string
-          status: string
-          submitted_at: string
-          title: string
-          type: string
-          whatsapp: string | null
-        }
-        Insert: {
-          budget: number
-          description: string
-          email: string
-          full_name: string
-          id?: string
-          status?: string
-          submitted_at?: string
-          title: string
-          type: string
-          whatsapp?: string | null
-        }
-        Update: {
-          budget?: number
-          description?: string
-          email?: string
-          full_name?: string
-          id?: string
-          status?: string
-          submitted_at?: string
-          title?: string
-          type?: string
-          whatsapp?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      verify_admin_credentials: {
-        Args: { admin_email: string; admin_password: string }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
